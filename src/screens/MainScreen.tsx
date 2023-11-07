@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import type { FC, PropsWithChildren } from 'react';
 import {
     SafeAreaView,
-    StyleSheet, Text, TouchableOpacity, View,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
-import { decrement, dummyAsync, increment, incrementByValue } from '../redux/dummy/dummySlice';
 import { ThunkDispatch } from '@reduxjs/toolkit';
-import { getValue, processedValue } from '../redux/selectors';
+
+import { decrement, dummyAsync, increment, incrementByValue } from '@rtk/dummy/dummySlice';
+import { getValue, processedValue } from '@rtk/selectors';
+
+import Dummy from '@components/Dummy';
+import CustomButton from '@components/CustomButton';
 
 
 type SectionProps = PropsWithChildren<{
@@ -30,8 +36,8 @@ const Button = ({ title = 'Button', onPress }: Omit<SectionProps, 'id'>): JSX.El
 const MainScreen: FC = (): JSX.Element => {
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
-    const count:number = useSelector(getValue)
-    const processed: number| string = useSelector(processedValue)
+    const count: number = useSelector(getValue)
+    const processed: number | string = useSelector(processedValue)
 
     const onPressIncrement = () => {
         dispatch(increment())
@@ -42,25 +48,39 @@ const MainScreen: FC = (): JSX.Element => {
     const onPressIncrementByValue = () => {
         dispatch(incrementByValue(10))
     }
-    const onPressIncrementAsync = () => {
+    const onPressIncrementAsync = useCallback(() => {
         dispatch(dummyAsync(false))
-    }
+    }, [])
 
     return (
-        <SafeAreaView>
-            <Text>{count}</Text>
-            <Text>{processed}</Text>
-
-            <Button onPress={onPressIncrement} title={'+'}/>
-            <Button onPress={onPressIncrementByValue} title={'+10'}/>
-            <Button onPress={onPressDecrement} title={'-'}/>
-            <Button onPress={onPressIncrementAsync} title={'async'}/>
+        <SafeAreaView style={styles.mainContainer}>
+            <View style={styles.wrapper}>
+                <Text style={styles.text}>{count}</Text>
+                <Text style={styles.text}>{processed}</Text>
+                <CustomButton onPress={onPressIncrement} title={'+'} />
+                <CustomButton onPress={onPressIncrementByValue} title={'+10'} />
+                <CustomButton onPress={onPressDecrement} title={'-'} />
+                <CustomButton onPress={onPressIncrementAsync} title={'async'} />
+            </View>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-
+    mainContainer: {
+        flex: 1,
+        backgroundColor:'#FFF'
+    },
+    wrapper:{
+        flex: 1,
+        justifyContent:'center',
+        alignItems:'center',
+    },
+    text:{
+        fontSize:30,
+        color:'#000000',
+        fontWeight:'600',
+    }
 });
 
-export default MainScreen;
+export default memo(MainScreen);
